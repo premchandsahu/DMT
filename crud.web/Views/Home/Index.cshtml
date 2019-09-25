@@ -1,0 +1,317 @@
+﻿@using System
+<!DOCTYPE html>
+<html ng-app="Crud" ng-controller="LandingPageController">
+<head>
+    <title>A&A Consultancy Services</title>
+    <!--<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.2.0/css/bootstrap.min.css">-->
+    <link rel="stylesheet" href="~/Scripts/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/Content/scrollable-table.css" />
+    @Styles.Render("~/Content/css")
+    <style>
+ 
+ 
+
+    </style>
+</head>
+<body style="font-family: Calibri;">
+
+    <div id="wrapper" >
+
+        <!-- jQuery library -->
+        <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script> -->
+        <script src="~/Scripts/jquery.min.js"></script>
+        <!-- Sidebar -->
+        <div id="sidebar-wrapper" style="background-color: lightgrey; padding-bottom: 100px;">
+            <!--
+                <div href="#" data-toggle="collapse" data-target="#demo" style="color:white;" align="center"><h3> Select Server</h3></div>
+                -->
+
+            <div style="margin: 10px;">
+                <button type="button" class="btn btn-primary btn-block" data-toggle="modal" data-target="#myModal" id="jj">
+                    <span class="glyphicon glyphicon-plus" style="margin-right: 10px; float: left"></span>
+                    Add New Server
+                </button>
+
+            </div>
+            <a href="" data-toggle="modal" data-target="#myModal1" id="myModalShower"></a>
+
+
+            <hr />
+            <div style="margin: 10px;">
+                <button type="button" class="btn btn-info btn-block" data-toggle="collapse" data-target="#serverList">
+                    <span class="glyphicon glyphicon-th-list" style="margin-right: 10px; float: left"></span>
+                    Select Server
+                </button>
+            </div>
+
+            <div id="serverList" class="collapse in">
+                <div style="margin: 10px;" ng-repeat="s in servers">
+                    <div class="row">
+                        <div ng-click="setup(s.name,s.value,s.remember)" class="col-md-11 serverName" id="selectServer">
+                            <span class="glyphicon glyphicon-blackboard" style="margin-right: 10px; font-size: large"></span>
+                            <span id="{{s.name}}">{{s.name}} 
+                            </span>
+
+                        </div>
+                        <div class="col-md-1" ng-show="s.showDBIcon">
+                            <span class=" glyphicon glyphicon-resize-vertical" style="float: right; font-size: large" ng-click="toggleDBList()"></span>
+                        </div>
+                        <div class="col-md-1" style="float: right;">
+                            <span class=" glyphicon glyphicon-remove removeServer" style="float: right; font-size: large" ng-click="removeServer(s)"></span>
+                        </div>
+                    </div>
+                    <div ng-show="s.showDBList && showDBListToggle">
+                        <div ng-repeat="database in databases" ng-model="database" ng-click="loadTables(database)" style="padding-top: 0px; margin-top: 0px; padding-bottom: 0px; margin-bottom: 0px;">
+                            <div id="dbList" style="margin-left: 60px; margin-top: 0px; padding-top: 0px;">
+                                <hr style="margin-top: 2px; margin-bottom: 2px;" />
+                                <span class="glyphicon glyphicon-hdd" style="margin-right: 10px; font-size: large"></span>
+                                <span id="{{database}}" ng-class="{'boldFontClass': highlight[$index]}">{{database}}
+                                </span>
+
+                            </div>
+                        </div>
+                    </div>
+                    <hr style="margin-top: 2px; margin-bottom: 2px;" />
+
+                </div>
+            </div>
+
+        </div>
+        <!-- /#sidebar-wrapper -->
+
+        <!-- Page Content -->
+        <div style="padding-bottom: 50px;">
+            <nav class="navbar navbar-default navbar-fixed-top">
+                <div class="container-fluid">
+                    <div class="navbar-header" align="center">
+                        <a class=" navbar-brand glyphicon glyphicon-menu-hamburger " aria-hidden="true" href="#menu-toggle" id="menu-toggle"></a>
+                        <span class="navbar-brand">Web Data Management Tool ( WebDMT )</span>
+                    </div>
+                    <div class="container">
+                        <div class="dropdown" style="float: right">
+                            <button style="margin-top: 8px;" id="single-button" type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown">
+                                About US <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li role="menuitem"><a href="#">Product Version 1.0</a></li>
+                                <li role="menuitem"><a href="/licence.txt" target="_blank">License Terms</a></li>
+                                <li role="menuitem"><a href="#">Trial Days remaining : {{daysremaining}}</a></li>
+                                <li class="divider"></li>
+                                <li role="menuitem"><a href="mailto:support@aacspune.com?Subject=Hello%20RDM%20Team" target="_top">Contact Us at Support e-Mail</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="">
+
+                <div class="mainContent" style="margin-left: 50px; margin-right: 50px">
+                    <div data-ng-show="pageLoading">
+                        <div class="preloader">
+                            <div class=" block-ui-overlay"></div>
+                            <div class="block-ui-message-container">
+                                <div class="block-ui-message">Loading <span class="loader-img"></span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div data-ng-show="error" class="container">
+                        <div class="row">
+                            <span class="alert-danger">{{ error }}</span>
+                        </div>
+                    </div>
+
+                    <div class="row" style="margin-top: 15px;">
+                        <label for="table">Select Table</label>
+
+
+                        <input type="text" class="form-control" ng-model="search" placeholder=" Search Table..." ng-focus="searchFocus()">
+                        <br />
+                        <select style="height: 120px" id="table" class="form-control" ng-options="table as table for table in tables|filter:search track by table"
+                            ng-model="table" ng-change="loadTableData();" multiple ng-show="showSelect">
+                        </select>
+                    </div>
+
+
+                    <div class="panel panel-info" ng-show="showAll">
+                        <div class="panel-heading" style="border-left: 10px solid #428bca;">
+                            <p style="font-size: x-large; vertical-align: central;">
+                                <span style="font-stretch: wider;">{{table[0]}}</span>
+                                <span style="float: right;">
+                                    <button type="button" class="btn btn-primary" ng-click="showAddPane();" style="margin-right: 10px;">Add New Record</button>
+                                    <button type="button" class="btn btn-primary" ng-click="JSONToCSVConvertor(columns,records,'TableData',true)" style="float: right;">Export To CSV</button>
+                                </span>
+                            </p>
+                        </div>
+
+                    </div>
+                    <div class="panel panel-info" ng-if="showAddSection">
+                        <div class="panel-heading">{{addMode ? 'Add New Record' : 'Edit Record'}}   <span style="float: right; font-size: small; margin-left: 15px; vertical-align: bottom;">** mandatory fields</span></div>
+                        <div class="panel-body">
+                            <fieldset ng-if="showAddSection" style="margin-top: 15px;">
+                                <form name="newRecord">
+                                    <div class="row">
+                                        <div class="col-sm-6" ng-repeat="column in columns" ng-if="column.COLUMN_NAME !== 'Action'">
+                                            <div class="form-group">
+                                                <b>{{column.IS_NULLABLE === "NO" ? "**" : ""}}</b>
+                                                <label for="table">{{column.COLUMN_NAME}}</label>
+                                                {{column.CHARACTER_MAXIMUM_LENGTH ? ("- Max Length: " + column.CHARACTER_MAXIMUM_LENGTH) : ""}}
+                                        <input type="text" ng-if="!column.IS_REF && (column.DATA_TYPE.indexOf('char') > -1 || column.DATA_TYPE === 'uniqueidentifier')" class="form-control" ng-model="column.data" ng-required="column.IS_NULLABLE == 'NO' && (!column.IS_SEQUENCE && !column.IS_IDENTITY)" ng-maxlength="{{column.CHARACTER_MAXIMUM_LENGTH}}"
+                                            ng-readonly="column.COLUMN_NAME === 'e_change_action_code' || (!addMode && column.IS_PRIMARY === 1) || column.IS_IDENTITY === 1 || column.IS_SEQUENCE" />
+                                                <input type="number" ng-if="!column.IS_REF && (column.DATA_TYPE === 'int' || column.DATA_TYPE === 'smallint' || column.DATA_TYPE === 'decimal' || column.DATA_TYPE === 'bigint' || column.DATA_TYPE === 'float' || column.DATA_TYPE === 'numeric' || column.DATA_TYPE === 'tinyint')" class="form-control" ng-model="column.data" ng-required="column.IS_NULLABLE == 'NO' && (!column.IS_SEQUENCE && !column.IS_IDENTITY)"
+                                                    ng-readonly="(!addMode && column.IS_PRIMARY === 1) || column.IS_IDENTITY === 1 || column.IS_SEQUENCE" />
+                                                <input type="checkbox" ng-if="!column.IS_REF && column.DATA_TYPE === 'bit'" ng-model="column.data" ng-required="column.IS_NULLABLE == 'NO'"
+                                                    ng-readonly="(!addMode && column.IS_PRIMARY === 1) || column.IS_IDENTITY === 1" />
+                                                <input type="date" ng-if="!column.IS_REF && column.DATA_TYPE === 'date' " class="form-control" ng-model="column.data" ng-required="column.IS_NULLABLE == 'NO'"
+                                                    ng-readonly="column.COLUMN_NAME === 'change_date' || (!addMode && column.IS_PRIMARY === 1) || column.IS_IDENTITY === 1" />
+                                                <input type="text" ng-if="!column.IS_REF && column.DATA_TYPE.indexOf('datetime') > -1" class="form-control" ng-model="column.data" ng-required="column.IS_NULLABLE == 'NO'"
+                                                    ng-readonly="(!addMode && column.IS_PRIMARY === 1) || column.IS_IDENTITY === 1" />
+                                                <select ng-if="column.IS_REF" class="form-control" ng-options="POSSIBLE_VALUES as POSSIBLE_VALUES for POSSIBLE_VALUES in column.POSSIBLE_VALUES.split(',') track by POSSIBLE_VALUES" ng-model="column.data" ng-required="column.IS_NULLABLE == 'NO'"
+                                                    ng-readonly="(!addMode && column.IS_PRIMARY === 1) || column.IS_IDENTITY === 1">
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row" style="text-align: center;">
+                                        <input type="button" class="btn btn-primary" ng-disabled="newRecord.$invalid" ng-click="saveRecord();" value="Save" />
+                                    </div>
+                                </form>
+                            </fieldset>
+                        </div>
+
+                    </div>
+
+                    <fieldset ng-if="table" style="margin-top: 15px;" ng-show="showAll">
+
+
+                        <!-- <div class="col-sm-12" style="overflow: auto; height: 500px;" >  -->
+                        <scrollable-table watch="columns">
+                            <table  style="margin-top: 10px;" class="table table-hover table-bordered table-condensed"  > 
+                                <thead>
+                                    <tr class="info">
+                                        <!-- <th>Action</th>  -->
+                                        <th style="word-wrap: normal; width: 100px" ng-repeat="column in columns" ng-click="changeSorting(column.COLUMN_NAME)">{{column.COLUMN_NAME}}<span class="sortorder" ng-show="sort.column === column.COLUMN_NAME" ng-class="{descending: sort.descending}"></span> </th>
+                                    </tr> 
+                                </thead> 
+                                <tbody>
+                                    <tr ng-if="records.length === 0">
+                                        <td colspan="{{columns.length}}">No data found.</td>
+                                    </tr>
+                                    <tr> 
+                                        <td ng-repeat="column in columns" >   <input type="text" style="width: 100%;" ng-if="column.COLUMN_NAME !== 'Action'" placeholder="search {{column.COLUMN_NAME}}..." ng-model="searchText[column.COLUMN_NAME]"/> </td>
+                                    </tr>
+                                    <tr dir-paginate="record in records|filter:searchText|orderBy:sort.column:sort.descending|itemsPerPage: 100">
+                                        <td><a href="javascript:void(0);" ng-click="showAddPane(record);">Edit</a> | <a href="javascript:void(0);" ng-click="deleteRecord(record);">Delete</a></td> 
+                                        <td ng-repeat="column in columns" ng-if="column.COLUMN_NAME !== 'Action'">{{record[column.COLUMN_NAME]}}</td>
+                                    </tr>
+                                </tbody>
+                            </table> 
+                        </scrollable-table>
+                        <div class="text-center">
+                            <dir-pagination-controls max-size="5" direction-links="true" boundary-links="true"></dir-pagination-controls>
+                        </div>
+
+                    </fieldset>
+                </div>
+
+            </div>
+
+
+            <!-- Add Server Modal:Start -->
+            <div class="modal fade" id="myModal" role="dialog">
+                <div class="modal-dialog">
+
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">
+                                &times;
+                            </button>
+                            <h4 class="modal-title">Enter Server Information</h4>
+                        </div>
+                        <div class="modal-body">
+                            <form role="form" name="serverForm">
+                                <div class="form-group">
+                                    <label for="server">Enter Server</label>
+                                    <input type="text" id="server" placeholder="Enter Server" class="form-control" ng-model="server" required />
+                                </div>
+                                <div class="form-group">
+                                    <label for="username">Enter Username</label>
+                                    <input type="text" id="username" ng-disabled="integratedSecurity" placeholder="Enter Username" class="form-control" ng-model="username" />
+                                </div>
+                                <div class="form-group">
+                                    <label for="password">Enter Password</label>
+                                    <input type="password" id="password" ng-disabled="integratedSecurity" placeholder="Enter Password" class="form-control" ng-model="password" />
+                                </div>
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" ng-model="integratedSecurity">
+                                        Integrated Security</label>
+                                </div>
+                                <hr />
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" ng-model="rememberMe">
+                                        Remember Me</label>
+                                </div>
+                                <div class="modal-footer">
+
+                                    <input type="button" ng-disabled="serverForm.$invalid" class="btn btn-default btn-block" value="GO" data-dismiss="modal" ng-click="connect(1);" />
+                                </div>
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+
+            <div id="footer" class="navbar navbar-fixed-bottom">
+                <div class="container">
+                    <p class="muted credit">Developed and Maintained by A&A Consultancy Services.</p>
+                    <p class="muted credit"><a href="/licence.txt" target="_blank">License Agreement & Terms of use</a>.</p>
+                </div>
+            </div>
+
+        </div>
+        <!-- /#page-content-wrapper -->
+
+    </div>
+    <!-- /#wrapper -->
+
+
+    <!-- Menu Toggle Script -->
+    <script type="text/javascript">
+        $("#menu-toggle").click(function (e) {
+            e.preventDefault();
+            $("#wrapper").toggleClass("toggled");
+        });
+    </script>
+
+
+
+
+    <!--  <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.20/angular.min.js"></script>-->
+    <script src="~/Scripts/angular.min.js"></script>
+
+
+    <!--  <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"> -->
+    <link rel="stylesheet" href="~/Scripts/bootstrap.min.css" />
+    <!--  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"> -->
+
+
+    <!-- Latest compiled JavaScript -->
+    <!--  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script> -->
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <!--  <script src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.10.0/ui-bootstrap-tpls.min.js"></script> -->
+    <script src="~/Scripts/ui-bootstrap-tpls.min.js"></script>
+    <!-- bootbox code -->
+    <script src="~/Scripts/bootbox.min.js"></script>
+
+    <script src="~/Scripts/angular-scrollable-table.js"></script>
+
+
+    @Scripts.Render("~/bundles/Crud")
+</body>
+</html>

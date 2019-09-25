@@ -1,0 +1,32 @@
+﻿{
+  "sequenceColumns": [
+    {
+      "columnName": "EDIMMaster.edim_reference.city_ref.e_city_id",
+      "sequenceColumn": "EDIMMaster.edim_reference.reference_sequence"
+    }
+    , {
+      "columnName": "EDIMMaster.edim_reference.county_ref.e_county_id",
+      "sequenceColumn": "EDIMMaster.edim_reference.reference_sequence"
+    }
+    , {
+      "columnName": "EDIMMaster.edim_reference.franchise_ref.e_franchise_id",
+      "sequenceColumn": "EDIMMaster.edim_reference.reference_sequence"
+    }
+    , {
+      "columnName": "EDIMMaster.edim_reference.location_ref.e_location_id",
+      "sequenceColumn": "EDIMMaster.edim_reference.reference_sequence"
+    }
+    , {
+      "columnName": "EDIMMaster.edim_reference.package_ref.e_package_id",
+      "sequenceColumn": "EDIMMaster.edim_reference.reference_sequence"
+    }
+    , {
+      "columnName": "EDIMMaster.edim_reference.plan_ref.e_plan_code",
+      "sequenceColumn": "EDIMMaster.edim_reference.reference_sequence"
+    }
+    , {
+      "columnName": "EDIMMaster.edim_reference.service_ref.e_service_id",
+      "sequenceColumn": "EDIMMaster.edim_reference.reference_sequence"
+    }
+  ]
+}
